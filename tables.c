@@ -304,7 +304,6 @@ static void construct_storyfile_z(void)
         p[mark] = 0x0;
 
     /*  ----------------- Low Strings and Abbreviations -------------------- */
-    printf("Here 1\n");
 
     p[mark]=0x80; p[mark+1]=0; mark+=2;        /* Start the low strings pool
                                          with a useful default string, "   " */
@@ -333,8 +332,7 @@ static void construct_storyfile_z(void)
     }
 
     /*  ------------------- Header extension table ------------------------- */
-    printf("Here 2\n");
-
+ 
     headerext_at = mark;
     headerext_length = ZCODE_HEADER_EXT_WORDS;
     if (zscii_defn_modified) {
@@ -353,7 +351,6 @@ static void construct_storyfile_z(void)
     }
 
     /*  -------------------- Z-character set table ------------------------- */
-    printf("Here 3\n");
 
     if (alphabet_modified)
     {   charset_at = mark;
@@ -364,7 +361,6 @@ static void construct_storyfile_z(void)
     }
 
     /*  ------------------ Unicode translation table ----------------------- */
-    printf("Here 4\n");
 
     unicode_at = 0;
     if (zscii_defn_modified)
@@ -380,7 +376,6 @@ static void construct_storyfile_z(void)
     }
 
     /*  -------------------- Objects and Properties ------------------------ */
-    printf("Here 5\n");
 
     /* The object table must be word-aligned. The Z-machine spec does not
        require this, but the RA__Pr() veneer routine does.
@@ -440,7 +435,6 @@ static void construct_storyfile_z(void)
     }
 
     /*  ----------- Table of Class Prototype Object Numbers ---------------- */
-    printf("Here 6\n");
 
     class_numbers_offset = mark;
     for (i=0; i<no_classes; i++)
@@ -451,7 +445,6 @@ static void construct_storyfile_z(void)
     p[mark++] = 0;
 
     /*  ------------------- Table of Identifier Names ---------------------- */
-    printf("Here 7\n");
 
     identifier_names_offset = mark;
 
@@ -512,14 +505,12 @@ static void construct_storyfile_z(void)
     }
 
     /*  ---------------- Table of Indiv Property Values -------------------- */
-    printf("Here 8\n");
 
     individuals_offset = mark;
     for (i=0; i<individuals_length; i++)
         p[mark++] = individuals_table[i];
 
     /*  ----------------- Variables and Dynamic Arrays --------------------- */
-    printf("Here 9\n");
 
     globals_at = mark;
 
@@ -532,7 +523,6 @@ static void construct_storyfile_z(void)
     }
 
     /*  ------------------ Terminating Characters Table -------------------- */
-    printf("Here 10\n");
 
     if (version_number >= 5)
     {   terminating_chars_at = mark;
@@ -541,8 +531,7 @@ static void construct_storyfile_z(void)
     }
 
     /*  ------------------------ Grammar Table ----------------------------- */
-    printf("Here 11\n");
-
+ 
     if (grammar_version_number > 3)
     {   warning("This version of Inform is unable to produce the grammar \
 table format requested (producing number 2 format instead)");
@@ -610,7 +599,6 @@ table format requested (producing number 2 format instead)");
     /*  table for a different purpose than Infocom used to.)                 */
     /*  The values are written later, when the Z-code offset is known.       */
     /*  -------------------------------------------------------------------- */
-    printf("Here 12\n");
 
     actions_at = mark;
     mark += no_actions*2;
@@ -620,7 +608,6 @@ table format requested (producing number 2 format instead)");
         mark += no_grammar_token_routines*2;
 
     /*  ----------------------- Adjectives Table --------------------------- */
-    printf("Here 13\n");
 
     if (grammar_version_number == 1)
     {   p[mark]=0; p[mark+1]=no_adjectives; mark+=2; /* To assist "infodump" */
@@ -656,7 +643,6 @@ table format requested (producing number 2 format instead)");
     }
 
     /*  ------------------------- Dictionary ------------------------------- */
-    printf("Here 14\n");
 
     dictionary_at=mark;
 
@@ -683,7 +669,6 @@ table format requested (producing number 2 format instead)");
     /* (no longer used) */
 
     /*  ------------------------ Static Arrays ----------------------------- */
-    printf("Here 15\n");
 
     static_arrays_at = mark;
     for (i=0; i<static_array_area_size; i++)
@@ -693,7 +678,6 @@ table format requested (producing number 2 format instead)");
     /*  (so that it will start at an exact packed address and so that all    */
     /*  routine packed addresses are >= 256, hence long constants)           */
     /*  -------------------------------------------------------------------- */
-    printf("Here 16\n");
 
     while ((mark%length_scale_factor) != 0) p[mark++]=0;
     while (mark < (scale_factor*0x100)) p[mark++]=0;
@@ -715,7 +699,6 @@ or less.");
     /*  -------------------------- Code Area ------------------------------- */
     /*  (From this point on we don't write any higher into the "p" buffer.)  */
     /*  -------------------------------------------------------------------- */
-    printf("Here 17\n");
 
     if (mark > rough_size)
         compiler_error("Paged size exceeds rough estimate.");
@@ -732,7 +715,6 @@ or less.");
     mark += code_length;
 
     /*  ------------------ Another synchronising gap ----------------------- */
-    printf("Here 18\n");
 
     if (oddeven_packing_switch)
     {   
@@ -742,7 +724,6 @@ or less.");
         while ((mark%scale_factor) != 0) mark++;
 
     /*  ------------------------- Strings Area ----------------------------- */
-    printf("Here 19\n");
 
     Write_Strings_At = mark;
     strings_length = static_strings_extent;
@@ -753,7 +734,6 @@ or less.");
     /* (no longer used) */
 
     /*  --------------------- Is the file too big? ------------------------- */
-    printf("Here 20\n");
 
     Out_Size = mark;
 
@@ -774,7 +754,6 @@ or less.");
     }
 
     /*  --------------------------- Offsets -------------------------------- */
-    printf("Here 21\n");
 
     dictionary_offset = dictionary_at;
     variables_offset = globals_at;
@@ -831,7 +810,6 @@ or less.");
     }
 
     /*  --------------------------- The Header ----------------------------- */
-    printf("Here 22\n");
 
     for (i=0; i<=0x3f; i++) p[i]=0;             /* Begin with 64 blank bytes */
 
@@ -889,7 +867,6 @@ or less.");
     p[63] = '0' + RELEASE_NUMBER%10;
 
     /*  ------------------------ Header Extension -------------------------- */
-    printf("Here 23\n");
 
     /* The numbering in the spec is a little weird -- it's headerext_length
        words *after* the initial length word. We follow the spec numbering
@@ -915,7 +892,6 @@ or less.");
     /* (no longer used) */
 
     /*  ---- Backpatch the Z-machine, now that all information is in ------- */
-    printf("Here 24\n");
 
     if (!skip_backpatching)
     {   backpatch_zmachine_image_z();
@@ -981,7 +957,6 @@ or less.");
     }
 
     /*  ---- From here on, it's all reportage: construction is finished ---- */
-    printf("Here 25\n");
 
     if (debugfile_switch)
     {   begin_writing_debug_sections();
