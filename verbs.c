@@ -1039,7 +1039,7 @@ grammar version 3 or later");
     if (!glulx_mode) {
         if (grammar_version_number == 3) j = j + (grammar_token << 11);
         if (reverse_action) j = j + 0x400;
-        if (meta_action) j = j + 0x200;
+        if (meta_action && grammar_version_number == 3) j = j + 0x200;
         grammar_lines[mark++] = j/256;
         grammar_lines[mark++] = j%256;
     }
