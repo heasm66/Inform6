@@ -673,6 +673,7 @@ typedef struct verbt {
     int size; /* allocated size of l */
     brief_location line; /* originally defined at */
     int used; /* only set at locate_dead_grammar_lines() time */
+    int meta; /* used to set meta-flag on individual grammar lines when verb is meta (GV3) */
 } verbt;
 
 typedef struct actioninfo_s {

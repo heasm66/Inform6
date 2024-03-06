@@ -486,13 +486,42 @@ static int make_adjective(char *English_word)
     return(0xff-no_adjectives++);
 }
 
+static int make_adjective_v3(char* English_word)
+{
+    /*  Returns adjective number of the English word supplied, creating
+        a new adjective number if need be.
+
+        Adjectives are numbered from 0 upwards.
+ 
+        This routine is used only in grammar version 3.
+    */
+
+    int l;
+    int32 dict_address;
+
+    if (no_adjectives >= 255) {
+        error("Grammar version 3 cannot support more than 255 prepositions");
+        return 0;
+    }
+
+    dict_address = dictionary_add(English_word, PREP_DFLAG, 0, 0);
+    for (l = 0; l < no_adjectives; l++)
+        if (adjectives[l] == dict_address)
+            return l;
+
+    ensure_memory_list_available(&adjectives_memlist, no_adjectives + 1);
+
+    adjectives[no_adjectives] = dict_address;
+    return(no_adjectives++);
+}
+
 /* ------------------------------------------------------------------------- */
 /*   Parsing routines.                                                       */
 /* ------------------------------------------------------------------------- */
 
 static int make_parsing_routine(int32 routine_address)
 {
-    /*  This routine is used only in grammar version 1: the corresponding
+    /*  This routine is used only in grammar version 1 and 3: the corresponding
         table is left empty in GV2.                                          */
 
     int l;
@@ -675,12 +704,27 @@ static int grammar_line(int verbnum, int line)
 
         and otherwise a GV2 token.
 
+        If grammar_version_number is 1, the table is in the form:
+
+                <action number : word>
+                <token 1> ... <token n>
+
+        The action number is actually contained in the bottom 9 bits of
+        the word, the top five bits contains the number of tokens in 
+        this grammar line, which leaves.
+
+           bit  9: meta-flag for this grammar line
+           bit 10: reverse-flag for this grammar line
+
+        Each <token> is 2 bytes long, where byte 1 is <token type>
+        and byte  is <token data>.
+
         Return TRUE if grammar continues after the line, FALSE if the
         directive comes to an end.                                           */
 
     int j, bytecode, mark; int32 wordcode;
     int grammar_token, slash_mode, last_was_slash;
-    int reverse_action, TOKEN_SIZE;
+    int reverse_action, TOKEN_SIZE, meta_action;
     debug_location_beginning beginning_debug_location =
         get_token_location_beginning();
 
@@ -704,6 +748,7 @@ static int grammar_line(int verbnum, int line)
     if (!glulx_mode) {
         mark = mark + 2;
         TOKEN_SIZE = 3;
+        if (grammar_version_number == 3) TOKEN_SIZE = 2;
     }
     else {
         mark = mark + 3;
@@ -748,11 +793,15 @@ static int grammar_line(int verbnum, int line)
         if ((token_type == DQ_TT) || (token_type == SQ_TT))
         {    if (grammar_version_number == 1)
                  bytecode = make_adjective(token_text);
-             else
-             {   bytecode = 0x42;
-                 wordcode = dictionary_add(token_text, PREP_DFLAG, 0, 0);
+             else 
+             {
+                 bytecode = 0x42;
+                 if (grammar_version_number == 3)
+                     wordcode = make_adjective_v3(token_text);
+                 else
+                     wordcode = dictionary_add(token_text, PREP_DFLAG, 0, 0);
              }
-        }
+       }
         else if ((token_type==DIR_KEYWORD_TT)&&(token_value==NOUN_DK))
              {   get_next_token();
                  if ((token_type == SEP_TT) && (token_value == SETEQUALS_SEP))
@@ -771,8 +820,12 @@ static int grammar_line(int verbnum, int line)
                          bytecode
                              = 16 + make_parsing_routine(symbols[token_value].value);
                      else
-                     {   bytecode = 0x83;
-                         wordcode = symbols[token_value].value;
+                     {
+                         bytecode = 0x83;
+                         if (grammar_version_number == 3)
+                             wordcode = make_parsing_routine(symbols[token_value].value);
+                         else
+                             wordcode = symbols[token_value].value;
                      }
                      symbols[token_value].flags |= USED_SFLAG;
                  }
@@ -835,7 +888,14 @@ are using Library 6/3 or later");
                  if (grammar_version_number == 1)
                      bytecode = 80 +
                          make_parsing_routine(symbols[token_value].value);
-                 else { bytecode = 0x85; wordcode = symbols[token_value].value; }
+                 else
+                 {
+                     bytecode = 0x85;
+                     if (grammar_version_number == 3)
+                         wordcode = make_parsing_routine(symbols[token_value].value);
+                     else
+                         wordcode = symbols[token_value].value;
+                 }
                  symbols[token_value].flags |= USED_SFLAG;
              }
         else if ((token_type == SEP_TT) && (token_value == SETEQUALS_SEP))
@@ -863,7 +923,14 @@ are using Library 6/3 or later");
                  {   if (grammar_version_number == 1)
                          bytecode = 48 +
                              make_parsing_routine(symbols[token_value].value);
-                     else { bytecode = 0x86; wordcode = symbols[token_value].value; }
+                     else
+                     {
+                        bytecode = 0x86;
+                        if (grammar_version_number == 3)
+                            wordcode = make_parsing_routine(symbols[token_value].value);
+                        else
+                            wordcode = symbols[token_value].value;
+                     }
                  }
                  symbols[token_value].flags |= USED_SFLAG;
              }
@@ -874,6 +941,12 @@ are using Library 6/3 or later");
                 warning("Grammar line cut short: you can only have up to 6 \
 tokens in any line (unless you're compiling with library 6/3 or later)");
         }
+        else if ((grammar_version_number == 3) && (grammar_token > 31))
+        {
+            if (grammar_token == 32)
+                warning("Grammar line cut short: you can only have up to 31 \
+tokens in any line");
+        }
         else
         {   if (slash_mode)
             {   if (bytecode != 0x42)
@@ -883,8 +956,12 @@ tokens in any line (unless you're compiling with library 6/3 or later)");
             ensure_memory_list_available(&grammar_lines_memlist, mark+5);
             grammar_lines[mark++] = bytecode;
             if (!glulx_mode) {
-                grammar_lines[mark++] = wordcode/256;
-                grammar_lines[mark++] = wordcode%256;
+                if (grammar_version_number == 3)
+                    grammar_lines[mark++] = (wordcode & 0xFF);
+                else {
+                    grammar_lines[mark++] = wordcode / 256;
+                    grammar_lines[mark++] = wordcode % 256;
+                }
             }
             else {
                 grammar_lines[mark++] = ((wordcode >> 24) & 0xFF);
@@ -897,7 +974,7 @@ tokens in any line (unless you're compiling with library 6/3 or later)");
     } while (TRUE);
 
     ensure_memory_list_available(&grammar_lines_memlist, mark+1);
-    grammar_lines[mark++] = 15;
+    if (grammar_version_number != 3) grammar_lines[mark++] = 15;
     grammar_lines_top = mark;
 
     dont_enter_into_symbol_table = TRUE;
@@ -918,14 +995,29 @@ tokens in any line (unless you're compiling with library 6/3 or later)");
     }
 
     reverse_action = FALSE;
-    get_next_token();
-    if ((token_type == DIR_KEYWORD_TT) && (token_value == REVERSE_DK))
-    {   if (grammar_version_number == 1)
-            error("'reverse' actions can only be used with \
+    meta_action = Inform_verbs[verbnum].meta;
+    do 
+    {   get_next_token();
+        if ((token_type == DIR_KEYWORD_TT) && (token_value == REVERSE_DK))
+        {
+            if (grammar_version_number == 1)
+                error("'reverse' actions can only be used with \
 Library 6/3 or later");
-        reverse_action = TRUE;
-    }
-    else put_token_back();
+            reverse_action = TRUE;
+        }
+        else if ((token_type == DIR_KEYWORD_TT) && (token_value == META_DK))
+        {
+            if (grammar_version_number != 3)
+                error("'meta' actions can only be used with \
+grammar version 3 or later");
+            meta_action = TRUE;
+
+        }
+        else
+        {   put_token_back();
+            break;
+        }
+    } while (TRUE);
 
     mark = Inform_verbs[verbnum].l[line];
 
@@ -945,8 +1037,9 @@ Library 6/3 or later");
 
     ensure_memory_list_available(&grammar_lines_memlist, mark+3);
     if (!glulx_mode) {
-        if (reverse_action)
-            j = j + 0x400;
+        if (grammar_version_number == 3) j = j + (grammar_token << 11);
+        if (reverse_action) j = j + 0x400;
+        if (meta_action) j = j + 0x200;
         grammar_lines[mark++] = j/256;
         grammar_lines[mark++] = j%256;
     }
@@ -1026,6 +1119,7 @@ extern void make_verb(void)
         Inform_verbs[no_Inform_verbs].l = my_malloc(sizeof(int) * Inform_verbs[no_Inform_verbs].size, "grammar lines for one verb");
         Inform_verbs[no_Inform_verbs].line = get_brief_location(&ErrorReport);
         Inform_verbs[no_Inform_verbs].used = FALSE;
+        Inform_verbs[no_Inform_verbs].meta = meta_verb_flag;
     }
 
     for (i=0, pos=0; i<no_given; i++) {
