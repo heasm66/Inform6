@@ -1162,7 +1162,7 @@ extern void extend_verb(void)
 {
     /*  Parse an entire Extend ... directive.                                */
 
-    int Inform_verb = -1, k, l, lines, extend_mode;
+    int Inform_verb = -1, k, l, lines, extend_mode, meta_verb_flag;
 
     directive_keywords.enabled = TRUE;
     directives.enabled = FALSE;
@@ -1201,6 +1201,7 @@ extern void extend_verb(void)
         /*  (We are copying entry Inform_verb to no_Inform_verbs here.) */
 
         l = Inform_verbs[Inform_verb].lines; /* number of lines to copy */
+        meta_verb_flag = Inform_verbs[Inform_verb].meta;
         
         Inform_verbs[no_Inform_verbs].lines = l;
         Inform_verbs[no_Inform_verbs].size = l+4;
@@ -1209,6 +1210,7 @@ extern void extend_verb(void)
             Inform_verbs[no_Inform_verbs].l[k] = Inform_verbs[Inform_verb].l[k];
         Inform_verbs[no_Inform_verbs].line = get_brief_location(&ErrorReport);
         Inform_verbs[no_Inform_verbs].used = FALSE;
+        Inform_verbs[no_Inform_verbs].meta = meta_verb_flag;
         Inform_verb = no_Inform_verbs++;
     }
     else
