@@ -197,9 +197,6 @@ static int32 rough_size_of_paged_memory_z(void)
               + 2*no_actions                              /* action routines */
               + 2*no_grammar_token_routines;     /* general parsing routines */
 
-    if (grammar_version_number == 3)
-        total -= 2 * no_adjectives;    /* reduce adjectives table size in v3 */
-    
     total += (dictionary_top)                             /* dictionary size */
              + (0);                                            /* module map */
 
