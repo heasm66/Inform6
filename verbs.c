@@ -1011,7 +1011,6 @@ Library 6/3 or later");
                 error("'meta' actions can only be used with \
 grammar version 3 or later");
             meta_action = TRUE;
-
         }
         else
         {   put_token_back();
