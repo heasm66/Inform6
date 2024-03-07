@@ -196,6 +196,7 @@ static int32 rough_size_of_paged_memory_z(void)
     total +=  2 + 4*no_adjectives                        /* adjectives table */
               + 2*no_actions                              /* action routines */
               + 2*no_grammar_token_routines;     /* general parsing routines */
+    /* In GV3, the adjectives table is smaller, but that's fine */
 
     total += (dictionary_top)                             /* dictionary size */
              + (0);                                            /* module map */
