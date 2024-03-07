@@ -801,7 +801,7 @@ static int grammar_line(int verbnum, int line)
                  else
                      wordcode = dictionary_add(token_text, PREP_DFLAG, 0, 0);
              }
-       }
+        }
         else if ((token_type==DIR_KEYWORD_TT)&&(token_value==NOUN_DK))
              {   get_next_token();
                  if ((token_type == SEP_TT) && (token_value == SETEQUALS_SEP))
