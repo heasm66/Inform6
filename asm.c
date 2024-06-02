@@ -2116,7 +2116,7 @@ void assemble_routine_end(int embedded_flag, debug_locations locations)
 static void transfer_routine_z(void)
 {   int32 i, j, pc, new_pc, label, long_form, offset_of_next, addr,
           branch_on_true, rstart_pc;
-    int32 adjusted_pc, opcode_at_label;
+    int32 adjusted_pc, opcode_at_label, label_at_branch;
 
     adjusted_pc = zmachine_pc - zcode_ha_size; rstart_pc = adjusted_pc;
 
@@ -2177,6 +2177,23 @@ static void transfer_routine_z(void)
                 zcode_holding_area[i - 1] = opcode_at_label;
                 zcode_markers[i] = DELETED_MV;
                 zcode_markers[i + 1] = DELETED_MV;
+            }
+            else if (zcode_markers[i - 3] == BRANCH_MV && labels[j].offset - pc > -0x2000 && labels[j].offset - pc < 0x1FFF) {
+              /* Branch immediately before this jump and the jump would fit as a branch (14 bits instead of 16 bits) */  
+              label_at_branch = (256 * zcode_holding_area[i - 3] + zcode_holding_area[i - 2]) & 0x7fff;
+                if (labels[label_at_branch].offset == pc + 2) {     /* check that label branched to is the adress following the jump */
+                    if (asm_trace_level >= 4) printf("...Modifying branch and deleting jump\n");
+                    zcode_holding_area[i - 3] = (zcode_holding_area[i - 3] ^ 0x80) & 0x80;                  /* Flip polarity of branch and clear high bits */
+                    zcode_holding_area[i - 3] = zcode_holding_area[i - 3] + (zcode_holding_area[i] & 0x3f); /* Add high bits for new label, most likely 0 */
+                    zcode_holding_area[i - 2] = zcode_holding_area[i + 1];                                  /* Change label for branch */
+                    zcode_markers[i - 1] = DELETED_MV;
+                    zcode_markers[i] = DELETED_MV;
+                    zcode_markers[i + 1] = DELETED_MV;
+                    if ((labels[j].offset >= pc + 2) && (labels[j].offset < pc + 61))       /* 61 because we move the jumping point backwards */
+                        zcode_markers[i - 2] = DELETED_MV;      /* short form */
+                    else
+                        zcode_markers[i - 2] = NULL_MV;         /* Restore long form if shortened above */
+                }
             }
         }
     }
