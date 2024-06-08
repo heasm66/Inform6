@@ -1803,19 +1803,19 @@ extern int32 assemble_routine_header(int routine_asterisked, char *name,
 
           if (define_INFIX_switch)
           {
-                if (embedded_flag)
-            {   SLF.value = 251; SLF.type = VARIABLE_OT; SLF.marker = 0;
-                  CON.value = 0; CON.type = SHORT_CONSTANT_OT; CON.marker = 0;
+            if (embedded_flag)
+            {   SLF.value = 251; SLF.type = VARIABLE_OT; SLF.marker = 0; SLF.symindex = 0;
+                CON.value = 0; CON.type = SHORT_CONSTANT_OT; CON.marker = 0; CON.symindex = 0;
                 assemblez_2_branch(test_attr_zc, SLF, CON, ln2, FALSE);
             }
             else
             {   i = no_named_routines++;
                 ensure_memory_list_available(&named_routine_symbols_memlist, no_named_routines);
                 named_routine_symbols[i] = the_symbol;
-                CON.value = i/8; CON.type = LONG_CONSTANT_OT; CON.marker = 0;
+                CON.value = i/8; CON.type = LONG_CONSTANT_OT; CON.marker = 0; CON.symindex = 0;
                 RFA.value = routine_flags_array_SC;
-                RFA.type = LONG_CONSTANT_OT; RFA.marker = INCON_MV;
-                STP.value = 0; STP.type = VARIABLE_OT; STP.marker = 0;
+                RFA.type = LONG_CONSTANT_OT; RFA.marker = INCON_MV; RFA.symindex = 0;
+                STP.value = 0; STP.type = VARIABLE_OT; STP.marker = 0; STP.symindex = 0;
                 assemblez_2_to(loadb_zc, RFA, CON, STP);
                 CON.value = (1 << (i%8)); CON.type = SHORT_CONSTANT_OT;
                 assemblez_2_to(and_zc, STP, CON, STP);
@@ -1827,7 +1827,7 @@ extern int32 assemble_routine_header(int routine_asterisked, char *name,
         for (i=1; (i<=7)&&(i<=no_locals); i++)
         {   if (version_number >= 5)
             {   PV.type = SHORT_CONSTANT_OT;
-                PV.value = i; PV.marker = 0;
+                PV.value = i; PV.marker = 0; PV.symindex = 0;
                 assemblez_1_branch(check_arg_count_zc, PV, ln, FALSE);
             }
             sprintf(fnt, "%s%s = ", (i==1)?"":", ", variable_name(i));
@@ -1891,6 +1891,7 @@ extern int32 assemble_routine_header(int routine_asterisked, char *name,
             named_routine_symbols[i] = the_symbol;
           }
         }
+        AO.symindex = 0; AO2.symindex = 0;
         sprintf(fnt, "[ %s(", name);
         AO.marker = STRING_MV;
         AO.type   = CONSTANT_OT;
@@ -2883,7 +2884,7 @@ void assemblez_jump(int n)
     if (n==-4) assemblez_0(rtrue_zc);
     else if (n==-3) assemblez_0(rfalse_zc);
     else
-    {   AO.type = LONG_CONSTANT_OT; AO.value = n; AO.marker = 0;
+    {   AO.type = LONG_CONSTANT_OT; AO.value = n; AO.marker = 0; AO.symindex = 0;
         assemblez_1(jump_zc, AO);
     }
 }
