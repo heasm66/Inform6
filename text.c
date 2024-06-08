@@ -2162,7 +2162,7 @@ Define DICT_CHAR_SIZE=4 for a Unicode-compatible dictionary.");
       k = '?';
     }
     
-    if (k >= (unsigned)'A' && k <= (unsigned)'Z')
+    if ((unsigned)k >= (unsigned)'A' && (unsigned)k <= (unsigned)'Z')
       k += ('a' - 'A');
 
     ensure_memory_list_available(&prepared_sort_memlist, DICT_WORD_BYTES);

@@ -445,7 +445,7 @@ static void output_file_z(void)
            we're in a live function or a dead one.
            (This logic is simplified by the assumption that a backpatch
            marker will never straddle a function break.) */
-        if (zmachine_pc != df_total_size_before_stripping)
+        if ((uint32)zmachine_pc != df_total_size_before_stripping)
             compiler_error("Code size does not match (zmachine_pc and df_total_size).");
         code_length = df_total_size_after_stripping;
         use_function = TRUE;
@@ -476,18 +476,18 @@ static void output_file_z(void)
            as-is. (Unless we're in a stripped-out function.) */
         while (j<offset) {
             if (!use_function) {
-                while (j<offset && j<next_cons_check) {
+                while (j<offset && (uint32)j<next_cons_check) {
                     j++;
                 }
             }
             else {
-                while (j<offset && j<next_cons_check) {
+                while (j<offset && (uint32)j<next_cons_check) {
                     size++;
                     sf_put(zcode_area[j]);
                     j++;
                 }
             }
-            if (j == next_cons_check)
+            if ((uint32)j == next_cons_check)
                 next_cons_check = df_next_function_iterate(&use_function);
         }
 
@@ -511,7 +511,7 @@ static void output_file_z(void)
             }
         }
 
-        if (j > next_cons_check)
+        if ((uint32)j > next_cons_check)
             compiler_error("Backpatch appears to straddle function break");
 
         if (backpatch_error_flag)
@@ -525,22 +525,22 @@ static void output_file_z(void)
     offset = zmachine_pc;
     while (j<offset) {
         if (!use_function) {
-            while (j<offset && j<next_cons_check) {
+            while (j<offset && (uint32)j<next_cons_check) {
                 j++;
             }
         }
         else {
-            while (j<offset && j<next_cons_check) {
+            while (j<offset && (uint32)j<next_cons_check) {
                 size++;
                 sf_put(zcode_area[j]);
                 j++;
             }
         }
-        if (j == next_cons_check)
+        if ((uint32)j == next_cons_check)
             next_cons_check = df_next_function_iterate(&use_function);
     }
 
-    if (size_before_code + code_length != size)
+    if (size_before_code + code_length != (uint32)size)
         compiler_error("Code output length did not match");
 
     /*  (3)  Output any null bytes (required to reach a packed address)
@@ -767,7 +767,7 @@ static void output_file_g(void)
            we're in a live function or a dead one.
            (This logic is simplified by the assumption that a backpatch
            marker will never straddle a function break.) */
-        if (zmachine_pc != df_total_size_before_stripping)
+        if ((uint32)zmachine_pc != df_total_size_before_stripping)
             compiler_error("Code size does not match (zmachine_pc and df_total_size).");
         code_length = df_total_size_after_stripping;
         use_function = TRUE;
@@ -795,18 +795,18 @@ static void output_file_g(void)
            as-is. (Unless we're in a stripped-out function.) */
         while (j<offset) {
             if (!use_function) {
-                while (j<offset && j<next_cons_check) {
+                while (j<offset && (uint32)j<next_cons_check) {
                     j++;
                 }
             }
             else {
-                while (j<offset && j<next_cons_check) {
+                while (j<offset && (uint32)j<next_cons_check) {
                     size++;
                     sf_put(zcode_area[j]);
                     j++;
                 }
             }
-            if (j == next_cons_check)
+            if ((uint32)j == next_cons_check)
                 next_cons_check = df_next_function_iterate(&use_function);
         }
 
@@ -866,7 +866,7 @@ static void output_file_g(void)
           backpatch_error_flag = TRUE;
         }
 
-        if (j > next_cons_check)
+        if ((uint32)j > next_cons_check)
           compiler_error("Backpatch appears to straddle function break");
 
         if (backpatch_error_flag) {
@@ -880,22 +880,22 @@ static void output_file_g(void)
     offset = zmachine_pc;
     while (j<offset) {
         if (!use_function) {
-            while (j<offset && j<next_cons_check) {
+            while (j<offset && (uint32)j<next_cons_check) {
                 j++;
             }
         }
         else {
-            while (j<offset && j<next_cons_check) {
+            while (j<offset && (uint32)j<next_cons_check) {
                 size++;
                 sf_put(zcode_area[j]);
                 j++;
             }
         }
-        if (j == next_cons_check)
+        if ((uint32)j == next_cons_check)
             next_cons_check = df_next_function_iterate(&use_function);
     }
 
-    if (size_before_code + code_length != size)
+    if (size_before_code + code_length != (uint32)size)
         compiler_error("Code output length did not match");
 
     /*  (4)  Output the static strings area.                                 */
