@@ -973,7 +973,8 @@ static void write_operand(assembly_operand op)
         case SHORT_CONSTANT_OT:
             if (op.marker == 0)
             byteout(j, 0);
-            else byteout(j, 0x80 + op.marker); return;
+            else byteout(j, 0x80 + op.marker); 
+            return;
         case VARIABLE_OT:
             byteout(j, 0); return;
         case CONSTANT_OT:
@@ -3146,7 +3147,8 @@ static void parse_assembly_z(void)
                 case 'T': custom_opcode_z.op_rules = TEXT; break;
                 case 'I': custom_opcode_z.op_rules = VARIAB; break;
                 case 'F': custom_opcode_z.flags2_set = atoi(token_text+i);
-                          while (isdigit(token_text[i])) i++; break;
+                          while (isdigit(token_text[i])) i++; 
+                          break;
                 default:
                     error("Unknown flag: options are B (branch), S (store), \
 T (text), I (indirect addressing), F** (set this Flags 2 bit)");
