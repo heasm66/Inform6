@@ -876,6 +876,7 @@ static void make_opcode_syntax_z(opcodez opco)
         case LABEL: sprintf(q+strlen(q), " <label>"); return;
         case VARIAB:
             sprintf(q+strlen(q), " <variable>");
+            /* Fall through */ /* (mark this fall through as indented to remove warning) */
         case CALL:
             if (opco.op_rules==CALL) sprintf(q+strlen(q), " <routine>");
             switch(opco.no)
@@ -2264,6 +2265,7 @@ static void transfer_routine_z(void)
                     if (!GRAMMAR_META_FLAG) break;
                     /* Actions are backpatchable if GRAMMAR_META_FLAG; fall
                        through and create entry */
+                    /* Fall through */ /* (mark this fall through as indented to remove warning) */
                 default:
                     if ((zcode_markers[i] & 0x7f) > LARGEST_BPATCH_MV)
                     {   compiler_error("Illegal code backpatch value");
@@ -2492,6 +2494,7 @@ static void transfer_routine_g(void)
             if (!GRAMMAR_META_FLAG) break;
             /* Actions are backpatchable if GRAMMAR_META_FLAG; fall
                through and create entry */
+            /* Fall through */ /* (mark this fall through as indented to remove warning) */
         case OBJECT_MV:
         case VARIABLE_MV:
         default:

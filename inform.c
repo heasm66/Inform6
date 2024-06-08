@@ -1343,7 +1343,7 @@ extern void switches(char *p, int cmode)
         case 'h': switch(p[i+1])
                   {   case '1': cli_print_help(1); s=2; break;
                       case '2': cli_print_help(2); s=2; break;
-                      case '0': s=2;
+                      case '0': s=2; /* Fall through */ /* (mark this fall through as indented to remove warning) */
                       default:  cli_print_help(0); break;
                   }
                   break;

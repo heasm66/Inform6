@@ -473,7 +473,7 @@ static void parse_print_z(int finally_return)
                           QUANTITY_CONTEXT, -1));
                   break;
               }
-
+              /* Fall through */ /* (mark this fall through as indented to remove warning) */
             default:
               put_token_back(); misc_keywords.enabled = FALSE;
               assemblez_1(print_num_zc,
@@ -704,7 +704,7 @@ static void parse_print_g(int finally_return)
                           QUANTITY_CONTEXT, -1));
                   break;
               }
-
+              /* Fall through */ /* (mark this fall through as indented to remove warning) */
             default:
               put_token_back(); misc_keywords.enabled = FALSE;
               assembleg_1(streamnum_gc,
