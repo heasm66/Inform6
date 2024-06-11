@@ -498,6 +498,14 @@
 #define NORETURN
 #endif
 
+#if defined(_MSC_VER)
+#define NORETURN_MSC __declspec(noreturn)
+#endif
+
+#ifndef NORETURN_MSC
+#define NORETURN_MSC
+#endif
+
 /* ------------------------------------------------------------------------- */
 /*   subtract_pointers() measures an address difference in bytes. This is    */
 /*   a macro.                                                                */
@@ -2345,10 +2353,10 @@ extern int  no_errors, no_warnings, no_suppressed_warnings, no_compiler_errors;
 
 extern ErrorPosition ErrorReport;
 
-extern void fatalerror(char *s) NORETURN;
-extern void fatalerror_fmt(const char *format, ...) NORETURN;
-extern void fatalerror_named(char *s1, char *s2) NORETURN;
-extern void fatalerror_memory_out(int32 size, int32 howmany, char *name) NORETURN;
+NORETURN_MSC extern void fatalerror(char *s) NORETURN;
+NORETURN_MSC extern void fatalerror_fmt(const char *format, ...) NORETURN;
+NORETURN_MSC extern void fatalerror_named(char *s1, char *s2) NORETURN;
+NORETURN_MSC extern void fatalerror_memory_out(int32 size, int32 howmany, char *name) NORETURN;
 
 extern void error(char *s);
 extern void error_fmt(const char *format, ...);
