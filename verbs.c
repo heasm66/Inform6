@@ -1279,6 +1279,11 @@ extern void make_verb(void)
             + (meta_verb_flag ? META_DFLAG : NONE_DFLAG);
         dictword = dictionary_add(token_text, flags, 0, 0);
 
+        /* Check if dictword is a synonym and can be ignored on this 
+           line (case pronoun/pronouns in z3). */
+        for (ix = first_given_verb; ix < English_verbs_count; ix++)
+            if (dictword == English_verbs[ix].dictword) goto NextIteration;
+
         evnum = find_verb_entry(dictword);
         if (evnum >= 0)
         {
@@ -1342,6 +1347,7 @@ extern void make_verb(void)
         English_verbs[English_verbs_count].dictword = dictword;
         English_verbs_count++;
         
+    NextIteration:
         firsttime = FALSE;
         get_next_token();
     }
