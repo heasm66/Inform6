@@ -79,6 +79,19 @@ extern int parse_given_directive(int internal_flag)
         }
     }
     
+    if (no_objects == 0 && (token_value == NEARBY_CODE || token_value == OBJECT_CODE || token_value == CLASS_CODE)) {
+        /*  Make the four metaclasses: Class must be object number 1, so
+            it must come first  */
+        put_token_back();
+        veneer_mode = TRUE;
+        make_class("Class");
+        make_class("Object");
+        make_class("Routine");
+        make_class("String");
+        veneer_mode = FALSE;
+        return FALSE;
+    }
+
     switch(token_value)
     {
 
@@ -1189,6 +1202,8 @@ it is too late to change the grammar version.");
             error("The Zcharacter directive has no meaning in Glulx.");
             panic_mode_error_recovery(); return FALSE;
         }
+        if (total_chars_trans > 0)
+            warning("Zcharacter change alphabet after text translation already begun.");
 
         directive_keywords.enabled = TRUE;
         get_next_token();
