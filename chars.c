@@ -1183,6 +1183,15 @@ extern int32 text_to_unicode(char *text)
         while ((text[i] != '}') && (text[i] != 0)) i++;
         if (text[i] == '}') i++;
         textual_form_length = i;
+        switch (total) {
+        /* Warn that ~ and ^ is being translated to double-quote and new-line. */
+        case 94:   
+            warning("@{5E} will print a newline instead of a caret (^), use @@94 for a caret.");
+            break;
+        case 126:              
+            warning("@{7E} will print a double-quote (\") instead of a tilde (~), use @@126 for tilde.");
+            break;
+        }
         return total;
     }
 
