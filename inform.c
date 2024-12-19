@@ -414,18 +414,6 @@ static void begin_pass(void)
     /*  Compile a Main__ routine (see "veneer.c")  */
     
     compile_initial_routine();
-    
-    /*  Make the four metaclasses: Class must be object number 1, so
-        it must come first  */
-    
-    veneer_mode = TRUE;
-    
-    make_class("Class");
-    make_class("Object");
-    make_class("Routine");
-    make_class("String");
-    
-    veneer_mode = FALSE;
 }
 
 extern void allocate_arrays(void)
@@ -1916,6 +1904,19 @@ static int sub_main(int argc, char **argv)
     cli_file1 = "source"; cli_file2 = "output";
 
     read_command_line(argc, argv);
+
+    int32 len = strlen(cli_file2);
+    char s[4];
+    int32 i;
+    for (i = 0; i < 4; i++)
+        s[i] = cli_file2[len - 4 + i];
+    make_lower_case(s);
+    if ((s[0] == '.' && s[1] == 'i' && s[2] == 'n' && s[3] == 'f') ||
+        (s[2] == '.' && s[3] == 'c') ||
+        (s[2] == '.' && s[3] == 'h')) {
+        printf("\n[No compilation completed. Output file extension can't be '*.inf', '*.c' or '*.h'.]\n");
+        return(0);
+    }
 
     if (cli_files_specified > 0)
     {   return_code = compile(cli_files_specified, cli_file1, cli_file2);
